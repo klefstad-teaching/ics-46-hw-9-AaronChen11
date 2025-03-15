@@ -48,32 +48,55 @@ bool is_adjacent(const string& word1, const string& word2) {
 }
 
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
+    if (begin_word.length() != end_word.length()) {
+        error(begin_word, end_word, "Words must be the same length");
+    }
+    
+    if (word_list.find(begin_word) == word_list.end() || 
+        word_list.find(end_word) == word_list.end()) {
+        error(begin_word, end_word, "Both words must be in dictionary");
+    }
+
     queue<vector<string>> paths;
     set<string> visited;
     
     paths.push({begin_word});
     visited.insert(begin_word);
     
+    const int MAX_PATH_LENGTH = 50;  
+    
     while (!paths.empty()) {
         vector<string> current_path = paths.front();
         paths.pop();
         
+        if (current_path.size() > MAX_PATH_LENGTH) {
+            continue;
+        }
+        
         string current = current_path.back();
         
-        for (const string& word : word_list) {
-            if (visited.find(word) != visited.end()) continue;
-            
-            if (is_adjacent(current, word)) {
-                vector<string> new_path = current_path;
-                new_path.push_back(word);
+        string word = current;
+        for (size_t i = 0; i < current.length(); i++) {
+            char original = word[i];
+            for (char c = 'a'; c <= 'z'; c++) {
+                if (c == original) continue;
                 
-                if (word == end_word) {
-                    return new_path;
+                word[i] = c;
+                if (word_list.find(word) != word_list.end() && 
+                    visited.find(word) == visited.end()) {
+                    
+                    vector<string> new_path = current_path;
+                    new_path.push_back(word);
+                    
+                    if (word == end_word) {
+                        return new_path;
+                    }
+                    
+                    paths.push(new_path);
+                    visited.insert(word);
                 }
-                
-                paths.push(new_path);
-                visited.insert(word);
             }
+            word[i] = original;
         }
     }
     
@@ -95,31 +118,35 @@ void load_words(set<string>& word_list, const string& file_name) {
 
 void print_word_ladder(const vector<string>& ladder) {
     if (ladder.empty()) {
-        cout << "No word ladder exists between these words." << endl;
+        cout << "No word ladder found." << endl;
         return;
     }
     
     cout << "Word ladder found: ";
-    for (const string& word : ladder) {
-        cout << word << " ";
+    for (size_t i = 0; i < ladder.size(); i++) {
+        cout << ladder[i];
+        if (i < ladder.size() - 1) cout << " ";
     }
     cout << endl;
 }
 
 void verify_word_ladder() {
-    set<string> word_list;
-    load_words(word_list, "words.txt");
-    
-    vector<pair<string, string>> test_cases = {
-        {"work", "play"},
-        {"sleep", "awake"},
-        {"awake", "sleep"}
-    };
-    
-    for (const auto& test : test_cases) {
-        cout << "Finding ladder from " << test.first << " to " << test.second << ":" << endl;
-        vector<string> ladder = generate_word_ladder(test.first, test.second, word_list);
-        print_word_ladder(ladder);
-        cout << endl;
+    try {
+        set<string> word_list;
+        load_words("words.txt", word_list);
+
+        vector<pair<string, string>> test_cases = {
+            {"work", "play"},  
+            {"sleep", "awake"}, 
+            {"awake", "sleep"}  
+        };
+
+        for (const auto& test : test_cases) {
+            vector<string> ladder = generate_word_ladder(test.first, test.second, word_list);
+            print_word_ladder(ladder);
+        }
+    }
+    catch (const exception& e) {
+        cout << "Error during verification: " << e.what() << endl;
     }
 }
