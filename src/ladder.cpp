@@ -28,11 +28,7 @@ bool edit_distance_within(const string& str1, const string& str2, int d) {
     while (i < short_len && j < long_len) {
         if (shorter[i] != longer[j]) {
             differences++;
-            if (short_len < long_len) {
-                j++;
-            } else {
-                i++;
-            }
+            j++;
         } else {
             i++;
             j++;
@@ -48,30 +44,15 @@ bool is_adjacent(const string& word1, const string& word2) {
 }
 
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
-    if (begin_word.length() != end_word.length()) {
-        error(begin_word, end_word, "Words must be the same length");
-    }
-    
-    if (word_list.find(begin_word) == word_list.end() || 
-        word_list.find(end_word) == word_list.end()) {
-        error(begin_word, end_word, "Both words must be in dictionary");
-    }
-
     queue<vector<string>> paths;
     set<string> visited;
     
     paths.push({begin_word});
     visited.insert(begin_word);
     
-    const int MAX_PATH_LENGTH = 50;  
-    
     while (!paths.empty()) {
         vector<string> current_path = paths.front();
         paths.pop();
-        
-        if (current_path.size() > MAX_PATH_LENGTH) {
-            continue;
-        }
         
         string current = current_path.back();
         
@@ -79,12 +60,8 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
         for (size_t i = 0; i < current.length(); i++) {
             char original = word[i];
             for (char c = 'a'; c <= 'z'; c++) {
-                if (c == original) continue;
-                
                 word[i] = c;
-                if (word_list.find(word) != word_list.end() && 
-                    visited.find(word) == visited.end()) {
-                    
+                if (word_list.count(word) && !visited.count(word)) {
                     vector<string> new_path = current_path;
                     new_path.push_back(word);
                     
@@ -127,20 +104,20 @@ void print_word_ladder(const vector<string>& ladder) {
         cout << ladder[i];
         if (i < ladder.size() - 1) cout << " ";
     }
-    cout << endl;
+    cout << " " << endl;
 }
 
 void verify_word_ladder() {
     try {
         set<string> word_list;
         load_words(word_list, "words.txt");
-
+        
         vector<pair<string, string>> test_cases = {
-            {"work", "play"},  
-            {"sleep", "awake"}, 
-            {"awake", "sleep"}  
+            {"work", "play"},
+            {"sleep", "awake"},
+            {"awake", "sleep"}
         };
-
+        
         for (const auto& test : test_cases) {
             vector<string> ladder = generate_word_ladder(test.first, test.second, word_list);
             print_word_ladder(ladder);
