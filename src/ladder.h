@@ -6,7 +6,8 @@
 #include <vector>
 #include <string>
 #include <cmath>
-
+#include <algorithm>  
+#include <cctype>  
 using namespace std;
 
 void error(string word1, string word2, string msg);

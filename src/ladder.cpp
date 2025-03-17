@@ -18,8 +18,11 @@ bool edit_distance_within(const string& str1, const string& str2, int d) {
         for (size_t j = 1; j <= str2.length(); j++) {
             if (tolower(str1[i-1]) == tolower(str2[j-1]))
                 dp[i][j] = dp[i-1][j-1];
-            else
-                dp[i][j] = 1 + min({dp[i-1][j], dp[i][j-1], dp[i-1][j-1]});
+            else {
+                int min_val = min(dp[i-1][j], dp[i][j-1]);
+                min_val = min(min_val, dp[i-1][j-1]);
+                dp[i][j] = 1 + min_val;
+            }
         }
     }
     return dp[str1.length()][str2.length()] <= d;
@@ -53,7 +56,7 @@ vector<string> generate_neighbors(const string& word) {
             neighbors.push_back(word.substr(0, i) + c + word.substr(i));
         }
     }
-    
+
     sort(neighbors.begin(), neighbors.end());
     return neighbors;
 }
