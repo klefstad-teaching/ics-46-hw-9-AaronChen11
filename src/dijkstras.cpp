@@ -5,7 +5,7 @@
 
 void print_path(const vector<int>& path, int total_cost) {
     if (path.empty()) {
-        cout << "No path exists" << endl;
+        cout << "\nTotal cost is " << total_cost << endl;
         return;
     }
 
@@ -20,7 +20,7 @@ void print_path(const vector<int>& path, int total_cost) {
 vector<int> extract_shortest_path(const vector<int>& distances, const vector<int>& previous, int end_vertex) {
     vector<int> path;
     
-    if (previous[end_vertex] == -1 && end_vertex != 0) {
+    if (end_vertex < 0 || end_vertex >= (int)previous.size()) {
         return path;
     }
     
@@ -50,7 +50,7 @@ vector<int> dijkstra_shortest_path(const Graph& graph, int start_vertex, vector<
         if (visited[u]) continue;
         visited[u] = true;
         
-        for (const auto& edge : graph.adjacencyList[u]) {
+        for (const auto& edge : graph.adj[u]) {  
             int v = edge.first;
             int weight = edge.second;
             
@@ -75,13 +75,13 @@ void file_to_graph(const string& filename, Graph& graph) {
     int n;
     file >> n;
     graph.numVertices = n;
-    graph.adjacencyList.resize(n);
+    graph.adj.resize(n);  
     
     int u, v, w;
     while (file >> u >> v >> w) {
         if (u >= n || v >= n || u < 0 || v < 0) {
             throw runtime_error("Invalid vertex in input file");
         }
-        graph.adjacencyList[u].push_back({v, w});
+        graph.adj[u].push_back({v, w});  
     }
 }
