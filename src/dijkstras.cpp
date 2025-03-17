@@ -76,10 +76,9 @@ void print_path(const vector<int>& path, int total_cost) {
         return;
     }
     
-    // Print path if it exists
     if (!path.empty()) {
         for (size_t i = 0; i < path.size(); i++) {
-            cout << path[i] << " ";  // Space after every number
+            cout << path[i] << " ";  
         }
         cout << "\n";
     } else {
