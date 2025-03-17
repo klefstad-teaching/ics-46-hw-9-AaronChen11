@@ -5,7 +5,7 @@
 
 void print_path(const vector<int>& path, int total_cost) {
     if (path.empty()) {
-        cout << "\nTotal cost is " << total_cost << endl;
+        cout << "No path exists" << endl;
         return;
     }
 
@@ -20,17 +20,14 @@ void print_path(const vector<int>& path, int total_cost) {
 vector<int> extract_shortest_path(const vector<int>& distances, const vector<int>& previous, int end_vertex) {
     vector<int> path;
     
-    // If no path exists or if it's the start vertex
-    if (end_vertex < 0 || end_vertex >= (int)previous.size()) {
+    if (distances[end_vertex] == numeric_limits<int>::max()) {
         return path;
     }
     
-    // Reconstruct path
     for (int v = end_vertex; v != -1; v = previous[v]) {
         path.push_back(v);
     }
     
-    // Reverse to get correct order
     reverse(path.begin(), path.end());
     return path;
 }
@@ -41,30 +38,30 @@ vector<int> dijkstra_shortest_path(const Graph& graph, int start_vertex, vector<
     vector<bool> visited(n, false);
     previous.resize(n, -1);
     
-    // Priority queue using pair<distance, vertex>
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-    
-    // Initialize start vertex
     distances[start_vertex] = 0;
-    pq.push({0, start_vertex});
     
-    while (!pq.empty()) {
-        int u = pq.top().second;
-        pq.pop();
+    for (int i = 0; i < n; i++) {
+        int u = -1;
+        int min_dist = numeric_limits<int>::max();
+        for (int v = 0; v < n; v++) {
+            if (!visited[v] && distances[v] < min_dist) {
+                u = v;
+                min_dist = distances[v];
+            }
+        }
         
-        if (visited[u]) continue;
+        if (u == -1) break;  
+        
         visited[u] = true;
         
-        // Check all neighbors
-        for (const auto& edge : graph.edges[u]) {
+        for (const auto& edge : graph.vertices[u]) {
             int v = edge.first;
             int weight = edge.second;
             
-            if (!visited[v] && distances[u] != numeric_limits<int>::max() && 
+            if (!visited[v] && distances[u] != numeric_limits<int>::max() &&
                 distances[u] + weight < distances[v]) {
                 distances[v] = distances[u] + weight;
                 previous[v] = u;
-                pq.push({distances[v], v});
             }
         }
     }
@@ -81,13 +78,13 @@ void file_to_graph(const string& filename, Graph& graph) {
     int n;
     file >> n;
     graph.numVertices = n;
-    graph.edges.resize(n);
+    graph.vertices.resize(n);
     
     int u, v, w;
     while (file >> u >> v >> w) {
         if (u >= n || v >= n || u < 0 || v < 0) {
             throw runtime_error("Invalid vertex in input file");
         }
-        graph.edges[u].push_back({v, w});
+        graph.vertices[u].push_back({v, w});
     }
 }
