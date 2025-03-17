@@ -32,36 +32,32 @@ vector<int> extract_shortest_path(const vector<int>& distances, const vector<int
     return path;
 }
 
-vector<int> dijkstra_shortest_path(const Graph& graph, int start_vertex, vector<int>& previous) {
-    int n = graph.numVertices;
+vector<int> dijkstra_shortest_path(const Graph& g, int start_vertex, vector<int>& previous) {
+    int n = g.graph.size();
     vector<int> distances(n, numeric_limits<int>::max());
     vector<bool> visited(n, false);
     previous.resize(n, -1);
     
     distances[start_vertex] = 0;
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    pq.push({0, start_vertex});
     
-    for (int i = 0; i < n; i++) {
-        int u = -1;
-        int min_dist = numeric_limits<int>::max();
-        for (int v = 0; v < n; v++) {
-            if (!visited[v] && distances[v] < min_dist) {
-                u = v;
-                min_dist = distances[v];
-            }
-        }
+    while (!pq.empty()) {
+        int u = pq.top().second;
+        pq.pop();
         
-        if (u == -1) break;  
-        
+        if (visited[u]) continue;
         visited[u] = true;
         
-        for (const auto& edge : graph.adjacencyList[u]) {
+        for (const auto& edge : g.graph[u]) {
             int v = edge.first;
             int weight = edge.second;
             
-            if (!visited[v] && distances[u] != numeric_limits<int>::max() &&
+            if (!visited[v] && distances[u] != numeric_limits<int>::max() && 
                 distances[u] + weight < distances[v]) {
                 distances[v] = distances[u] + weight;
                 previous[v] = u;
+                pq.push({distances[v], v});
             }
         }
     }
@@ -69,7 +65,7 @@ vector<int> dijkstra_shortest_path(const Graph& graph, int start_vertex, vector<
     return distances;
 }
 
-void file_to_graph(const string& filename, Graph& graph) {
+void file_to_graph(const string& filename, Graph& g) {
     ifstream file(filename);
     if (!file) {
         throw runtime_error("Cannot open file: " + filename);
@@ -77,14 +73,13 @@ void file_to_graph(const string& filename, Graph& graph) {
     
     int n;
     file >> n;
-    graph.numVertices = n;
-    graph.adjacencyList.resize(n);
+    g.graph.resize(n);
     
     int u, v, w;
     while (file >> u >> v >> w) {
         if (u >= n || v >= n || u < 0 || v < 0) {
             throw runtime_error("Invalid vertex in input file");
         }
-        graph.adjacencyList[u].push_back({v, w});
+        g.graph[u].push_back({v, w});
     }
 }
