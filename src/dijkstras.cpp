@@ -87,21 +87,3 @@ void print_path(const vector<int>& path, int total_cost) {
     
     cout << "Total cost is " << total_cost << "\n";
 }
-
-void print_path(const vector<int>& path, int total_cost) {
-    if (total_cost == INF) {
-        cout << "No path exists\n";
-        return;
-    }
-    if (!path.empty()) {
-        for (size_t i = 0; i < path.size(); i++) {
-            cout << path[i];
-            cout << " ";  
-        }
-        cout << "\n";  
-    } else {
-        cout << "\n";
-    }
-
-    cout << "Total cost is " << total_cost << "\n";
-}
