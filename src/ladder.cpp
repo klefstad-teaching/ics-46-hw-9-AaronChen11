@@ -34,6 +34,10 @@ vector<string> generate_neighbors(const string& word) {
     string letters = "abcdefghijklmnopqrstuvwxyz";
     
     for (size_t i = 0; i < word.length(); i++) {
+        neighbors.push_back(word.substr(0, i) + word.substr(i + 1));
+    }
+    
+    for (size_t i = 0; i < word.length(); i++) {
         char original = word[i];
         for (char c : letters) {
             if (c != original) {
@@ -49,11 +53,8 @@ vector<string> generate_neighbors(const string& word) {
             neighbors.push_back(word.substr(0, i) + c + word.substr(i));
         }
     }
-
-    for (size_t i = 0; i < word.length(); i++) {
-        neighbors.push_back(word.substr(0, i) + word.substr(i + 1));
-    }
     
+    sort(neighbors.begin(), neighbors.end());
     return neighbors;
 }
 
@@ -77,7 +78,7 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
     ladder_queue.push({start});
     visited.insert(start);
     
-    const int MAX_DEPTH = 50;  
+    const int MAX_DEPTH = 50;
     
     while (!ladder_queue.empty()) {
         vector<string> current_ladder = ladder_queue.front();
@@ -111,7 +112,7 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
         }
     }
     
-    return {};  
+    return {};
 }
 
 void print_word_ladder(const vector<string>& ladder) {
