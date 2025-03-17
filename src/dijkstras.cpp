@@ -54,7 +54,7 @@ vector<int> dijkstra_shortest_path(const Graph& graph, int start_vertex, vector<
         
         visited[u] = true;
         
-        for (const auto& edge : graph.vertices[u]) {
+        for (const auto& edge : graph.adjacencyList[u]) {
             int v = edge.first;
             int weight = edge.second;
             
@@ -78,13 +78,13 @@ void file_to_graph(const string& filename, Graph& graph) {
     int n;
     file >> n;
     graph.numVertices = n;
-    graph.vertices.resize(n);
+    graph.adjacencyList.resize(n);
     
     int u, v, w;
     while (file >> u >> v >> w) {
         if (u >= n || v >= n || u < 0 || v < 0) {
             throw runtime_error("Invalid vertex in input file");
         }
-        graph.vertices[u].push_back({v, w});
+        graph.adjacencyList[u].push_back({v, w});
     }
 }
