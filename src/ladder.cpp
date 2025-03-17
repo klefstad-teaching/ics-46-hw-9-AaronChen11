@@ -10,32 +10,34 @@ bool edit_distance_within(const string& str1, const string& str2, int d) {
     
     if (abs(len1 - len2) > d) return false;
     
-    int differences = 0;
     
     if (len1 == len2) {
+        int differences = 0;
         for (int i = 0; i < len1; i++) {
             if (str1[i] != str2[i]) differences++;
+            if (differences > d) return false;
         }
-        return differences <= d;
+        return true;
     }
     
     const string& shorter = (len1 < len2) ? str1 : str2;
     const string& longer = (len1 < len2) ? str2 : str1;
-    int short_len = shorter.length();
-    int long_len = longer.length();
     
     int i = 0, j = 0;
-    while (i < short_len && j < long_len) {
-        if (shorter[i] != longer[j]) {
-            differences++;
+    int differences = 0;
+    
+    while (i < shorter.length() && j < longer.length()) {
+        if (shorter[i] == longer[j]) {
+            i++;
             j++;
         } else {
-            i++;
+            differences++;
+            if (differences > d) return false;
             j++;
         }
     }
     
-    differences += (long_len - j) + (short_len - i);
+    differences += longer.length() - j;
     return differences <= d;
 }
 
@@ -44,6 +46,10 @@ bool is_adjacent(const string& word1, const string& word2) {
 }
 
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
+    if (word_list.find(end_word) == word_list.end() && begin_word != end_word) {
+        error(begin_word, end_word, "End word must be in dictionary");
+    }
+    
     queue<vector<string>> paths;
     set<string> visited;
     
@@ -56,24 +62,19 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
         
         string current = current_path.back();
         
-        string word = current;
-        for (size_t i = 0; i < current.length(); i++) {
-            char original = word[i];
-            for (char c = 'a'; c <= 'z'; c++) {
-                word[i] = c;
-                if (word_list.count(word) && !visited.count(word)) {
-                    vector<string> new_path = current_path;
-                    new_path.push_back(word);
-                    
-                    if (word == end_word) {
-                        return new_path;
-                    }
-                    
-                    paths.push(new_path);
-                    visited.insert(word);
-                }
+        if (current == end_word) {
+            return current_path;
+        }
+        
+        for (const string& word : word_list) {
+            if (visited.find(word) != visited.end()) continue;
+            
+            if (is_adjacent(current, word)) {
+                vector<string> new_path = current_path;
+                new_path.push_back(word);
+                paths.push(new_path);
+                visited.insert(word);
             }
-            word[i] = original;
         }
     }
     
@@ -113,9 +114,10 @@ void verify_word_ladder() {
         load_words(word_list, "words.txt");
         
         vector<pair<string, string>> test_cases = {
-            {"work", "play"},
-            {"sleep", "awake"},
-            {"awake", "sleep"}
+            {"work", "play"},    //6
+            {"sleep", "awake"},  //8
+            {"awake", "sleep"},  //8
+            {"car", "cheat"}     //4
         };
         
         for (const auto& test : test_cases) {
