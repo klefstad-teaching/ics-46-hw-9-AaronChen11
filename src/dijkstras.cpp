@@ -20,14 +20,17 @@ void print_path(const vector<int>& path, int total_cost) {
 vector<int> extract_shortest_path(const vector<int>& distances, const vector<int>& previous, int end_vertex) {
     vector<int> path;
     
+    // If no path exists or if it's the start vertex
     if (end_vertex < 0 || end_vertex >= (int)previous.size()) {
         return path;
     }
     
+    // Reconstruct path
     for (int v = end_vertex; v != -1; v = previous[v]) {
         path.push_back(v);
     }
     
+    // Reverse to get correct order
     reverse(path.begin(), path.end());
     return path;
 }
@@ -38,8 +41,10 @@ vector<int> dijkstra_shortest_path(const Graph& graph, int start_vertex, vector<
     vector<bool> visited(n, false);
     previous.resize(n, -1);
     
+    // Priority queue using pair<distance, vertex>
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
     
+    // Initialize start vertex
     distances[start_vertex] = 0;
     pq.push({0, start_vertex});
     
@@ -50,7 +55,8 @@ vector<int> dijkstra_shortest_path(const Graph& graph, int start_vertex, vector<
         if (visited[u]) continue;
         visited[u] = true;
         
-        for (const auto& edge : graph.adj[u]) {  
+        // Check all neighbors
+        for (const auto& edge : graph.edges[u]) {
             int v = edge.first;
             int weight = edge.second;
             
@@ -75,13 +81,13 @@ void file_to_graph(const string& filename, Graph& graph) {
     int n;
     file >> n;
     graph.numVertices = n;
-    graph.adj.resize(n);  
+    graph.edges.resize(n);
     
     int u, v, w;
     while (file >> u >> v >> w) {
         if (u >= n || v >= n || u < 0 || v < 0) {
             throw runtime_error("Invalid vertex in input file");
         }
-        graph.adj[u].push_back({v, w});  
+        graph.edges[u].push_back({v, w});
     }
 }
